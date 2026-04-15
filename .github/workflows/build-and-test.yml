@@ -1,22 +1,37 @@
-name: Build and Test
+name: Build, Test, and Release
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
   pull_request:
-    branches: ["main"]
+    branches: [ "main" ]
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '20'
+      - run: npm install
+      - run: npm run lint
+      - run: npm test
+  build:
+    [cite_start]needs: test # Chỉ chạy nếu job test thành công [cite: 111]
+    strategy:
+      matrix:
+        [cite_start]os: [ubuntu-latest, windows-latest, macos-latest] # Build trên 3 hệ điều hành [cite: 114]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
       - name: Install dependencies
-        run: npm install
-      - name: Lint
-        run: npm run lint
-      - name: Run unit tests
-        run: npm test
+        [cite_start]run: npm install [cite: 119]
+      - name: Build application
+        [cite_start]run: npm run build [cite: 121]
+      - name: Upload artifact
+        [cite_start]uses: actions/upload-artifact@v4 [cite: 123]
+        with:
+          [cite_start]name: calculator-${{ matrix.os }} [cite: 124]
+          [cite_start]path: dist/ [cite: 124]
